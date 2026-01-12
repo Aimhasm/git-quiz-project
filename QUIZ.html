@@ -1,144 +1,213 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
-  <meta charset="UTF-8">
-  <title>Git Quiz</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      padding: 20px;
-    }
-    .quiz-container {
-      background: #fff;
-      padding: 20px;
-      max-width: 600px;
-      margin: auto;
-      border-radius: 8px;
-    }
-    h1 {
-      text-align: center;
-    }
-    .question {
-      font-weight: bold;
-      margin-top: 20px;
-    }
-    .answers label {
-      display: block;
-      margin: 5px 0;
-    }
-    button {
-      margin-top: 20px;
-      padding: 10px 15px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .result {
-      font-size: 18px;
-      font-weight: bold;
-      margin-top: 20px;
-      text-align: center;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>🎮 Git Quiz Game</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Orbitron', sans-serif;
+  background: radial-gradient(circle at top, #0f2027, #203a43, #000);
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.game {
+  width: 700px;
+  background: rgba(0,0,0,0.85);
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 0 30px #00fff7;
+  animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 15px #00fff7; }
+  to   { box-shadow: 0 0 35px #00fff7; }
+}
+
+h1 {
+  text-align: center;
+  color: #00fff7;
+  margin-bottom: 20px;
+}
+
+.progress {
+  height: 10px;
+  background: #333;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #00fff7, #00ff88);
+  transition: width 0.4s;
+}
+
+.question {
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.answers button {
+  width: 100%;
+  padding: 15px;
+  margin: 10px 0;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #111;
+  color: #fff;
+  transition: 0.3s;
+  border: 1px solid #00fff7;
+}
+
+.answers button:hover {
+  background: #00fff7;
+  color: #000;
+  transform: scale(1.03);
+}
+
+.correct {
+  background: #00ff88 !important;
+  color: #000;
+}
+
+.wrong {
+  background: #ff0044 !important;
+}
+
+.score {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 18px;
+}
+
+.end {
+  text-align: center;
+  font-size: 22px;
+}
+
+.restart {
+  margin-top: 20px;
+  padding: 12px 20px;
+  font-size: 16px;
+  background: #00fff7;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+</style>
 </head>
+
 <body>
 
-<div class="quiz-container">
-  <h1>Git Commands Quiz</h1>
-  <div id="quiz"></div>
-  <button onclick="submitQuiz()">Υποβολή</button>
-  <div id="result" class="result"></div>
+<div class="game">
+  <h1>🚀 Git Quiz Game</h1>
+
+  <div class="progress">
+    <div class="progress-bar" id="progress"></div>
+  </div>
+
+  <div id="content"></div>
+  <div class="score" id="score"></div>
 </div>
 
 <script>
-  const quizData = [
-    {
-      question: "1. Ποια εντολή αρχικοποιεί ένα νέο git repository;",
-      answers: ["git start", "git init", "git new", "git create"],
-      correct: 1
-    },
-    {
-      question: "2. Ποια εντολή δείχνει την κατάσταση των αρχείων;",
-      answers: ["git check", "git log", "git status", "git state"],
-      correct: 2
-    },
-    {
-      question: "3. Ποια εντολή προσθέτει αρχεία στο staging area;",
-      answers: ["git push", "git add", "git commit", "git stage"],
-      correct: 1
-    },
-    {
-      question: "4. Ποια εντολή αποθηκεύει τις αλλαγές στο repository;",
-      answers: ["git save", "git commit", "git push", "git store"],
-      correct: 1
-    },
-    {
-      question: "5. Ποια εντολή δείχνει το ιστορικό των commits;",
-      answers: ["git history", "git commits", "git log", "git show"],
-      correct: 2
-    },
-    {
-      question: "6. Ποια εντολή στέλνει αλλαγές σε remote repository;",
-      answers: ["git send", "git upload", "git push", "git remote"],
-      correct: 2
-    },
-    {
-      question: "7. Ποια εντολή κατεβάζει αλλαγές από remote repository;",
-      answers: ["git pull", "git fetch", "git clone", "Όλα τα παραπάνω"],
-      correct: 3
-    },
-    {
-      question: "8. Ποια εντολή δημιουργεί νέο branch;",
-      answers: ["git branch νέο", "git new branch", "git checkout", "git merge"],
-      correct: 0
-    },
-    {
-      question: "9. Ποια εντολή αλλάζει branch;",
-      answers: ["git move", "git switch", "git checkout", "Β και Γ"],
-      correct: 3
-    },
-    {
-      question: "10. Ποια εντολή ενώνει branches;",
-      answers: ["git join", "git merge", "git combine", "git rebase"],
-      correct: 1
+const questions = [
+  { q: "Ποια εντολή αρχικοποιεί git repository;", a: ["git new", "git init", "git start", "git create"], c: 1 },
+  { q: "Ποια εντολή δείχνει status;", a: ["git log", "git info", "git status", "git check"], c: 2 },
+  { q: "Προσθήκη αρχείων στο staging;", a: ["git stage", "git add", "git commit", "git push"], c: 1 },
+  { q: "Αποθήκευση αλλαγών;", a: ["git save", "git commit", "git push", "git store"], c: 1 },
+  { q: "Ιστορικό commits;", a: ["git history", "git log", "git show", "git past"], c: 1 },
+  { q: "Αποστολή σε remote;", a: ["git upload", "git send", "git push", "git pull"], c: 2 },
+  { q: "Λήψη αλλαγών;", a: ["git pull", "git clone", "git fetch", "Όλα"], c: 3 },
+  { q: "Δημιουργία branch;", a: ["git branch new", "git checkout", "git fork", "git split"], c: 0 },
+  { q: "Αλλαγή branch;", a: ["git move", "git change", "git checkout", "git go"], c: 2 },
+  { q: "Ένωση branches;", a: ["git join", "git merge", "git combine", "git rebase"], c: 1 }
+];
+
+let index = 0;
+let score = 0;
+
+const content = document.getElementById("content");
+const scoreDiv = document.getElementById("score");
+const progress = document.getElementById("progress");
+
+function loadQuestion() {
+  progress.style.width = `${(index / questions.length) * 100}%`;
+
+  const q = questions[index];
+  content.innerHTML = `
+    <div class="question">${q.q}</div>
+    <div class="answers">
+      ${q.a.map((ans, i) =>
+        `<button onclick="answer(${i}, this)">${ans}</button>`
+      ).join("")}
+    </div>
+  `;
+}
+
+function answer(i, btn) {
+  const correct = questions[index].c;
+  const buttons = document.querySelectorAll(".answers button");
+
+  buttons.forEach(b => b.disabled = true);
+
+  if (i === correct) {
+    btn.classList.add("correct");
+    score++;
+  } else {
+    btn.classList.add("wrong");
+    buttons[correct].classList.add("correct");
+  }
+
+  scoreDiv.innerText = `Score: ${score}`;
+
+  setTimeout(() => {
+    index++;
+    if (index < questions.length) {
+      loadQuestion();
+    } else {
+      endGame();
     }
-  ];
+  }, 900);
+}
 
-  const quizContainer = document.getElementById("quiz");
+function endGame() {
+  progress.style.width = "100%";
+  content.innerHTML = `
+    <div class="end">
+      🎉 Τέλος Παιχνιδιού!<br><br>
+      Σκορ: ${score} / ${questions.length}
+      <br>
+      <button class="restart" onclick="restart()">🔁 Restart</button>
+    </div>
+  `;
+}
 
-  function loadQuiz() {
-    quizData.forEach((q, index) => {
-      const div = document.createElement("div");
-      div.innerHTML = `
-        <div class="question">${q.question}</div>
-        <div class="answers">
-          ${q.answers.map((a, i) => `
-            <label>
-              <input type="radio" name="q${index}" value="${i}">
-              ${a}
-            </label>
-          `).join("")}
-        </div>
-      `;
-      quizContainer.appendChild(div);
-    });
-  }
+function restart() {
+  index = 0;
+  score = 0;
+  scoreDiv.innerText = "";
+  loadQuestion();
+}
 
-  function submitQuiz() {
-    let score = 0;
-
-    quizData.forEach((q, index) => {
-      const selected = document.querySelector(`input[name="q${index}"]:checked`);
-      if (selected && parseInt(selected.value) === q.correct) {
-        score++;
-      }
-    });
-
-    document.getElementById("result").innerText =
-      `Σκορ: ${score} / ${quizData.length}`;
-  }
-
-  loadQuiz();
+loadQuestion();
 </script>
 
 </body>
