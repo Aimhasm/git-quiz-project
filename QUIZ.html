@@ -7,9 +7,7 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -20,6 +18,7 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  overflow: hidden;
 }
 
 .game {
@@ -29,17 +28,17 @@ body {
   padding: 30px;
   box-shadow: 0 0 30px #00fff7;
   animation: glow 2s infinite alternate;
+  z-index: 2;
 }
 
 @keyframes glow {
   from { box-shadow: 0 0 15px #00fff7; }
-  to   { box-shadow: 0 0 35px #00fff7; }
+  to { box-shadow: 0 0 35px #00fff7; }
 }
 
 h1 {
   text-align: center;
   color: #00fff7;
-  margin-bottom: 20px;
 }
 
 .progress {
@@ -57,45 +56,26 @@ h1 {
   transition: width 0.4s;
 }
 
-.question {
-  font-size: 20px;
-  margin-bottom: 20px;
-}
-
 .answers button {
   width: 100%;
   padding: 15px;
   margin: 10px 0;
   font-size: 16px;
-  border: none;
   border-radius: 8px;
   cursor: pointer;
   background: #111;
   color: #fff;
-  transition: 0.3s;
   border: 1px solid #00fff7;
+  transition: 0.3s;
 }
 
 .answers button:hover {
   background: #00fff7;
   color: #000;
-  transform: scale(1.03);
 }
 
-.correct {
-  background: #00ff88 !important;
-  color: #000;
-}
-
-.wrong {
-  background: #ff0044 !important;
-}
-
-.score {
-  text-align: center;
-  margin-top: 20px;
-  font-size: 18px;
-}
+.correct { background: #00ff88 !important; color: #000; }
+.wrong { background: #ff0044 !important; }
 
 .end {
   text-align: center;
@@ -111,6 +91,41 @@ h1 {
   border-radius: 8px;
   cursor: pointer;
 }
+
+/* 🎉 CONFETTI */
+.confetti {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  background: red;
+  animation: fall 3s linear forwards;
+  z-index: 1;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* 🎈 BALLOONS */
+.balloon {
+  position: fixed;
+  bottom: -100px;
+  width: 40px;
+  height: 55px;
+  border-radius: 50%;
+  animation: float 5s ease-in forwards;
+  z-index: 1;
+}
+
+@keyframes float {
+  to {
+    transform: translateY(-120vh);
+    opacity: 0;
+  }
+}
 </style>
 </head>
 
@@ -118,96 +133,94 @@ h1 {
 
 <div class="game">
   <h1>🚀 Git Quiz Game</h1>
-
-  <div class="progress">
-    <div class="progress-bar" id="progress"></div>
-  </div>
-
+  <div class="progress"><div class="progress-bar" id="progress"></div></div>
   <div id="content"></div>
-  <div class="score" id="score"></div>
 </div>
 
 <script>
 const questions = [
-  { q: "Ποια εντολή αρχικοποιεί git repository;", a: ["git new", "git init", "git start", "git create"], c: 1 },
-  { q: "Ποια εντολή δείχνει status;", a: ["git log", "git info", "git status", "git check"], c: 2 },
-  { q: "Προσθήκη αρχείων στο staging;", a: ["git stage", "git add", "git commit", "git push"], c: 1 },
-  { q: "Αποθήκευση αλλαγών;", a: ["git save", "git commit", "git push", "git store"], c: 1 },
-  { q: "Ιστορικό commits;", a: ["git history", "git log", "git show", "git past"], c: 1 },
-  { q: "Αποστολή σε remote;", a: ["git upload", "git send", "git push", "git pull"], c: 2 },
-  { q: "Λήψη αλλαγών;", a: ["git pull", "git clone", "git fetch", "Όλα"], c: 3 },
-  { q: "Δημιουργία branch;", a: ["git branch new", "git checkout", "git fork", "git split"], c: 0 },
-  { q: "Αλλαγή branch;", a: ["git move", "git change", "git checkout", "git go"], c: 2 },
-  { q: "Ένωση branches;", a: ["git join", "git merge", "git combine", "git rebase"], c: 1 }
+  { q:"git init κάνει τι;", a:["Start","Init repo","Push","Clone"], c:1 },
+  { q:"git status δείχνει;", a:["Commits","Files","Status","History"], c:2 },
+  { q:"git add κάνει;", a:["Save","Stage","Push","Delete"], c:1 },
+  { q:"git commit κάνει;", a:["Upload","Save","Merge","Fetch"], c:1 },
+  { q:"git log δείχνει;", a:["Status","Branches","History","Remote"], c:2 },
+  { q:"git push κάνει;", a:["Download","Upload","Merge","Reset"], c:1 },
+  { q:"git pull κάνει;", a:["Upload","Delete","Download","Fork"], c:2 },
+  { q:"git branch κάνει;", a:["Merge","New branch","Switch","Reset"], c:1 },
+  { q:"git checkout κάνει;", a:["Delete","Switch","Upload","Init"], c:1 },
+  { q:"git merge κάνει;", a:["Split","Join","Save","Fork"], c:1 }
 ];
 
-let index = 0;
-let score = 0;
-
+let i = 0, score = 0;
 const content = document.getElementById("content");
-const scoreDiv = document.getElementById("score");
 const progress = document.getElementById("progress");
 
-function loadQuestion() {
-  progress.style.width = `${(index / questions.length) * 100}%`;
-
-  const q = questions[index];
+function load() {
+  progress.style.width = `${(i / questions.length) * 100}%`;
+  const q = questions[i];
   content.innerHTML = `
-    <div class="question">${q.q}</div>
+    <div>${q.q}</div>
     <div class="answers">
-      ${q.a.map((ans, i) =>
-        `<button onclick="answer(${i}, this)">${ans}</button>`
-      ).join("")}
-    </div>
-  `;
+      ${q.a.map((x,n)=>`<button onclick="answer(${n},this)">${x}</button>`).join("")}
+    </div>`;
 }
 
-function answer(i, btn) {
-  const correct = questions[index].c;
-  const buttons = document.querySelectorAll(".answers button");
+function answer(n, btn) {
+  const c = questions[i].c;
+  document.querySelectorAll("button").forEach(b=>b.disabled=true);
+  if(n===c){ btn.classList.add("correct"); score++; }
+  else { btn.classList.add("wrong"); document.querySelectorAll("button")[c].classList.add("correct"); }
 
-  buttons.forEach(b => b.disabled = true);
-
-  if (i === correct) {
-    btn.classList.add("correct");
-    score++;
-  } else {
-    btn.classList.add("wrong");
-    buttons[correct].classList.add("correct");
-  }
-
-  scoreDiv.innerText = `Score: ${score}`;
-
-  setTimeout(() => {
-    index++;
-    if (index < questions.length) {
-      loadQuestion();
-    } else {
-      endGame();
-    }
-  }, 900);
+  setTimeout(()=>{
+    i++;
+    i < questions.length ? load() : end();
+  },800);
 }
 
-function endGame() {
+function end() {
   progress.style.width = "100%";
   content.innerHTML = `
     <div class="end">
-      🎉 Τέλος Παιχνιδιού!<br><br>
-      Σκορ: ${score} / ${questions.length}
+      🎉 Τέλος! <br><br>
+      Score: ${score}/10
       <br>
       <button class="restart" onclick="restart()">🔁 Restart</button>
-    </div>
-  `;
+    </div>`;
+
+  if(score >= 5) celebration();
 }
 
-function restart() {
-  index = 0;
-  score = 0;
-  scoreDiv.innerText = "";
-  loadQuestion();
+function restart(){
+  i=0; score=0;
+  document.querySelectorAll(".confetti,.balloon").forEach(e=>e.remove());
+  load();
 }
 
-loadQuestion();
+/* 🎉 EFFECTS */
+function celebration(){
+  // Confetti
+  for(let i=0;i<80;i++){
+    const c = document.createElement("div");
+    c.className="confetti";
+    c.style.left=Math.random()*100+"vw";
+    c.style.background=`hsl(${Math.random()*360},100%,50%)`;
+    c.style.animationDuration=2+Math.random()*2+"s";
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),4000);
+  }
+
+  // Balloons
+  for(let i=0;i<10;i++){
+    const b=document.createElement("div");
+    b.className="balloon";
+    b.style.left=Math.random()*100+"vw";
+    b.style.background=`hsl(${Math.random()*360},80%,60%)`;
+    document.body.appendChild(b);
+    setTimeout(()=>b.remove(),6000);
+  }
+}
+
+load();
 </script>
 
 </body>
