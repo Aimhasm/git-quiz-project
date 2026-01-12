@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8">
+  <title>Git Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    .quiz-container {
+      background: #fff;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+      border-radius: 8px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .question {
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    .answers label {
+      display: block;
+      margin: 5px 0;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 15px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .result {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="quiz-container">
+  <h1>Git Commands Quiz</h1>
+  <div id="quiz"></div>
+  <button onclick="submitQuiz()">Υποβολή</button>
+  <div id="result" class="result"></div>
+</div>
+
+<script>
+  const quizData = [
+    {
+      question: "1. Ποια εντολή αρχικοποιεί ένα νέο git repository;",
+      answers: ["git start", "git init", "git new", "git create"],
+      correct: 1
+    },
+    {
+      question: "2. Ποια εντολή δείχνει την κατάσταση των αρχείων;",
+      answers: ["git check", "git log", "git status", "git state"],
+      correct: 2
+    },
+    {
+      question: "3. Ποια εντολή προσθέτει αρχεία στο staging area;",
+      answers: ["git push", "git add", "git commit", "git stage"],
+      correct: 1
+    },
+    {
+      question: "4. Ποια εντολή αποθηκεύει τις αλλαγές στο repository;",
+      answers: ["git save", "git commit", "git push", "git store"],
+      correct: 1
+    },
+    {
+      question: "5. Ποια εντολή δείχνει το ιστορικό των commits;",
+      answers: ["git history", "git commits", "git log", "git show"],
+      correct: 2
+    },
+    {
+      question: "6. Ποια εντολή στέλνει αλλαγές σε remote repository;",
+      answers: ["git send", "git upload", "git push", "git remote"],
+      correct: 2
+    },
+    {
+      question: "7. Ποια εντολή κατεβάζει αλλαγές από remote repository;",
+      answers: ["git pull", "git fetch", "git clone", "Όλα τα παραπάνω"],
+      correct: 3
+    },
+    {
+      question: "8. Ποια εντολή δημιουργεί νέο branch;",
+      answers: ["git branch νέο", "git new branch", "git checkout", "git merge"],
+      correct: 0
+    },
+    {
+      question: "9. Ποια εντολή αλλάζει branch;",
+      answers: ["git move", "git switch", "git checkout", "Β και Γ"],
+      correct: 3
+    },
+    {
+      question: "10. Ποια εντολή ενώνει branches;",
+      answers: ["git join", "git merge", "git combine", "git rebase"],
+      correct: 1
+    }
+  ];
+
+  const quizContainer = document.getElementById("quiz");
+
+  function loadQuiz() {
+    quizData.forEach((q, index) => {
+      const div = document.createElement("div");
+      div.innerHTML = `
+        <div class="question">${q.question}</div>
+        <div class="answers">
+          ${q.answers.map((a, i) => `
+            <label>
+              <input type="radio" name="q${index}" value="${i}">
+              ${a}
+            </label>
+          `).join("")}
+        </div>
+      `;
+      quizContainer.appendChild(div);
+    });
+  }
+
+  function submitQuiz() {
+    let score = 0;
+
+    quizData.forEach((q, index) => {
+      const selected = document.querySelector(`input[name="q${index}"]:checked`);
+      if (selected && parseInt(selected.value) === q.correct) {
+        score++;
+      }
+    });
+
+    document.getElementById("result").innerText =
+      `Σκορ: ${score} / ${quizData.length}`;
+  }
+
+  loadQuiz();
+</script>
+
+</body>
+</html>
